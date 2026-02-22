@@ -7,6 +7,7 @@ import { getProduct } from "@/lib/api";
 import { mockProducts } from "@/mocks/data";
 import { useCartStore } from "@/stores/useCartStore";
 import type { Product } from "@/types";
+import { formatPrice } from "@/lib/format";
 import Button from "@/components/ui/Button";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -84,10 +85,7 @@ export default function ProductDetailPage() {
           </p>
           <h1 className="text-3xl font-bold mt-1">{product.name}</h1>
           <p className="text-2xl font-semibold mt-4">
-            ${product.price.toFixed(2)}
-            <span className="text-sm text-gray-500 ml-1">
-              {product.currency}
-            </span>
+            {formatPrice(product.price)}
           </p>
           <p className="text-gray-600 mt-4 leading-relaxed">
             {product.description}

@@ -11,7 +11,7 @@ interface CartState {
   totalItems: () => number;
 }
 
-export const useCartStore = create<CartState>((set, get) => ({
+export const useCartStore = create<CartState>()((set, get) => ({
   items: [],
 
   addItem: (product, quantity = 1) => {

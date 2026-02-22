@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Product } from "@/types";
 import { useCartStore } from "@/stores/useCartStore";
+import { formatPrice } from "@/lib/format";
 import Button from "@/components/ui/Button";
 
 interface ProductCardProps {
@@ -35,7 +36,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="text-sm text-gray-500 mt-1">{product.category}</p>
         <div className="flex items-center justify-between mt-3">
           <span className="text-lg font-semibold">
-            ${product.price.toFixed(2)}
+            {formatPrice(product.price)}
           </span>
           <Button
             size="sm"

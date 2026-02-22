@@ -7,6 +7,7 @@ import { createOrder } from "@/lib/api";
 import type { ShippingAddress } from "@/types";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { formatPrice } from "@/lib/format";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -138,14 +139,14 @@ export default function CheckoutPage() {
                     {item.product.name} x {item.quantity}
                   </span>
                   <span className="font-medium">
-                    ${(item.product.price * item.quantity).toFixed(2)}
+                    {formatPrice(item.product.price * item.quantity)}
                   </span>
                 </div>
               ))}
             </div>
             <div className="border-t border-gray-200 mt-4 pt-4 flex justify-between font-semibold">
               <span>Total</span>
-              <span>${totalAmount().toFixed(2)}</span>
+              <span>{formatPrice(totalAmount())}</span>
             </div>
           </div>
         </div>

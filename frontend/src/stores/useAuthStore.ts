@@ -5,15 +5,20 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isAdmin: () => boolean;
   setAuth: (user: User, token: string) => void;
   logout: () => void;
   hydrate: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>()((set, get) => ({
   user: null,
   token: null,
   isAuthenticated: false,
+
+  isAdmin: () => {
+    return get().user?.role === "admin";
+  },
 
   setAuth: (user, token) => {
     localStorage.setItem("token", token);

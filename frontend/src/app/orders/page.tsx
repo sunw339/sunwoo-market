@@ -6,6 +6,7 @@ import { getOrders } from "@/lib/api";
 import { mockOrders } from "@/mocks/data";
 import { useAuthStore } from "@/stores/useAuthStore";
 import type { Order } from "@/types";
+import { formatPrice } from "@/lib/format";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
@@ -100,16 +101,14 @@ export default function OrdersPage() {
                   <span>
                     {item.productName} x {item.quantity}
                   </span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                  <span>{formatPrice(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
 
             <div className="border-t border-gray-100 mt-3 pt-3 flex justify-between font-semibold text-sm">
               <span>Total</span>
-              <span>
-                ${order.totalAmount.toFixed(2)} {order.currency}
-              </span>
+              <span>{formatPrice(order.totalAmount)}</span>
             </div>
           </div>
         ))}

@@ -101,3 +101,17 @@ export async function getOrders(): Promise<Order[]> {
 export async function getOrder(id: string): Promise<Order> {
   return fetchApi<Order>(`/orders/${id}`);
 }
+
+// ============================================================
+// Admin API
+// ============================================================
+
+// todo0022 - 실제 상품 등록 엔드포인트 연결
+export async function createProduct(
+  body: Omit<Product, "id">
+): Promise<Product> {
+  return fetchApi<Product>("/products", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}

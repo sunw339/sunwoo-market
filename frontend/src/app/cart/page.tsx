@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/useCartStore";
 import CartItem from "@/components/cart/CartItem";
 import Button from "@/components/ui/Button";
+import { formatPrice } from "@/lib/format";
 
 export default function CartPage() {
   const router = useRouter();
@@ -37,7 +38,7 @@ export default function CartPage() {
       <div className="mt-8 border-t border-gray-200 pt-6">
         <div className="flex items-center justify-between text-lg font-semibold">
           <span>Total</span>
-          <span>${totalAmount().toFixed(2)}</span>
+          <span>{formatPrice(totalAmount())}</span>
         </div>
 
         <Button

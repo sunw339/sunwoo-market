@@ -5,7 +5,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useCartStore } from "@/stores/useCartStore";
 
 export default function Header() {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user, logout, isAdmin } = useAuthStore();
   const totalItems = useCartStore((s) => s.totalItems);
 
   return (
@@ -42,6 +42,14 @@ export default function Header() {
                 >
                   Orders
                 </Link>
+                {/* XXXXADMIN - isAdmin() && ( */}
+                <Link
+                  href="/admin"
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  Admin
+                </Link>
+                {/* XXXXADMIN ) */}
                 <span className="text-sm text-gray-500">
                   {user?.name || "User"}
                 </span>
