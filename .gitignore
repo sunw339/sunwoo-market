@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.claude/
+
+# env files
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.sublime-workspace
+*.swp
+*.swo
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# debug
+*.pem
+
+# build
+dist/
+build/
+out/
+
+# misc
+*.tsbuildinfo
