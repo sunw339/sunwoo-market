@@ -1,6 +1,7 @@
 # dependencies
 node_modules/
 .claude/
+CLAUDE.md
 
 # env files
 .env
