@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/stores/useCartStore";
 import { createOrder } from "@/lib/api";
@@ -12,6 +12,7 @@ import { formatPrice } from "@/lib/format";
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalAmount, clearCart } = useCartStore();
+  const idempotencyKey = useRef(crypto.randomUUID());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [address, setAddress] = useState<ShippingAddress>({
@@ -40,13 +41,16 @@ export default function CheckoutPage() {
 
     try {
       // todo0060 - 결제 게이트웨이 연동 (Stripe 등) 추가
-      const order = await createOrder({
-        items: items.map((item) => ({
-          productId: item.product.id,
-          quantity: item.quantity,
-        })),
-        shippingAddress: address,
-      });
+      const order = await createOrder(
+        {
+          items: items.map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+          })),
+          shippingAddress: address,
+        },
+        idempotencyKey.current,
+      );
       clearCart();
       router.push(`/order-complete?orderId=${order.id}`);
     } catch (err: unknown) {

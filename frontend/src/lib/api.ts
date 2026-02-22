@@ -85,10 +85,14 @@ export async function getProduct(id: string): Promise<Product> {
 // ============================================================
 
 // todo0030 - 실제 주문 생성 엔드포인트 연결
-export async function createOrder(body: CheckoutRequest): Promise<Order> {
+export async function createOrder(
+  body: CheckoutRequest,
+  idempotencyKey: string,
+): Promise<Order> {
   return fetchApi<Order>("/orders", {
     method: "POST",
     body: JSON.stringify(body),
+    headers: { "Idempotency-Key": idempotencyKey },
   });
 }
 
