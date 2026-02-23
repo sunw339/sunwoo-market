@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum Currency {
+  KRW
+  USD
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  SOLD_OUT
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  name           String?
+  phone          String?
+  email          String?
+  address        String?
+  address_detail String?
+  role           String?
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+  deleted_at     DateTime?
+  orders         Order[]
+
+  @@map("user")
+}
+
+model Order {
+  id             Int          @id @default(autoincrement())
+  user_id        Int
+  idempotency_id Int
+  paymentKey     String?
+  status         OrderStatus?
+  total_price    Int
+  currency       Currency?
+  address        String?
+  address_detail String?
+  created_at     DateTime?    @default(now())
+  updated_at     DateTime?    @updatedAt
+  approved_at    DateTime?
+  deleted_at     DateTime?
+  user           User         @relation(fields: [user_id], references: [id])
+  order_infos    OrderInfo[]
+
+  @@map("order")
+}
+
+model OrderInfo {
+  id          Int       @id @default(autoincrement())
+  order_id    Int
+  product_id  Int
+  total_price Int
+  amount      Int?
+  currency    Currency?
+  created_at  DateTime? @default(now())
+  updated_at  DateTime? @updatedAt
+  deleted_at  DateTime?
+  order       Order     @relation(fields: [order_id], references: [id])
+  product     Product   @relation(fields: [product_id], references: [id])
+
+  @@map("order_info")
+}
+
+model Product {
+  id            Int           @id @default(autoincrement())
+  name          String?
+  description   String?       @db.Text
+  image_url     String?       @db.Text
+  thumb_url     String?       @db.Text
+  code          String?
+  created_at    DateTime?     @default(now())
+  updated_at    DateTime?     @updatedAt
+  deleted_at    DateTime?
+  order_infos   OrderInfo[]
+  product_infos ProductInfo[]
+
+  @@map("product")
+}
+
+model ProductInfo {
+  id            Int            @id @default(autoincrement())
+  product_id    Int
+  stock_qty     Int?
+  price         Int?
+  currency      Currency?
+  discount_rate Int?
+  status        ProductStatus?
+  created_at    DateTime?      @default(now())
+  updated_at    DateTime?      @updatedAt
+  deleted_at    DateTime?
+  product       Product        @relation(fields: [product_id], references: [id])
+
+  @@map("product_info")
+}
