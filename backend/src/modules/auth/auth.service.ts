@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../user/user.service';
+import { LoginDto } from './dto/login.dto';
+import type { JwtPayload } from './interfaces/jwt-payload.interface';
+import { comparePassword } from '../../common/utils/password.util';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
+
+  async login(dto: LoginDto) {
+    const user = await this.userService.findByEmail(dto.email);
+    if (!user) {
+      throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다');
+    }
+
+    const isMatch = await comparePassword(dto.password, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다');
+    }
+
+    return this.generateTokens({ sub: user.id, email: user.email, role: user.role });
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async refresh(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET || 'temp-refresh-secret',
+      });
+
+      return this.generateTokens({ sub: payload.sub, email: payload.email, role: payload.role });
+    } catch {
+      throw new UnauthorizedException('유효하지 않은 refreshToken입니다');
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  private generateTokens(payload: JwtPayload) {
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET || 'temp-secret',
+      expiresIn: '15m',
+    });
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.JWT_REFRESH_SECRET || 'temp-refresh-secret',
+      expiresIn: '7d',
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return { accessToken, refreshToken };
   }
 }
