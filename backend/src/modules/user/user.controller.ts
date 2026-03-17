@@ -1,9 +1,9 @@
 import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '@common/decorators/current-user.decorator';
+import type { CurrentUserInfo } from '@modules/auth/interfaces/jwt-payload.interface';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import type { CurrentUserInfo } from '@modules/auth/interfaces/jwt-payload.interface';
 
 @Controller('users')
 export class UserController {
@@ -19,5 +19,4 @@ export class UserController {
   async getMe(@CurrentUser() user: CurrentUserInfo) {
     return this.userService.findById(user.userId);
   }
-
 }

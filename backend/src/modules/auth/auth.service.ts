@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../user/user.service';
+import { UserService } from '@modules/user/user.service';
+import { comparePassword } from '@common/utils/password.util';
 import { LoginDto } from './dto/login.dto';
 import type { JwtPayload } from './interfaces/jwt-payload.interface';
-import { comparePassword } from '../../common/utils/password.util';
-
+import { User } from '@generated/prisma/client';
 @Injectable()
 export class AuthService {
   constructor(
@@ -13,26 +13,38 @@ export class AuthService {
   ) {}
 
   async login(dto: LoginDto) {
-    const user = await this.userService.findByEmail(dto.email);
+    const user: User | null = await this.userService.findByEmail(dto.email);
     if (!user) {
-      throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다');
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 올바르지 않습니다',
+      );
     }
 
     const isMatch = await comparePassword(dto.password, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다');
+      throw new UnauthorizedException(
+        '이메일 또는 비밀번호가 올바르지 않습니다',
+      );
     }
 
-    return this.generateTokens({ sub: user.id, email: user.email, role: user.role });
+    return this.generateTokens({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    });
   }
 
-  async refresh(refreshToken: string) {
+  refresh(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify(refreshToken, {
+      const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET || 'temp-refresh-secret',
       });
 
-      return this.generateTokens({ sub: payload.sub, email: payload.email, role: payload.role });
+      return this.generateTokens({
+        sub: payload.sub,
+        email: payload.email,
+        role: payload.role,
+      });
     } catch {
       throw new UnauthorizedException('유효하지 않은 refreshToken입니다');
     }

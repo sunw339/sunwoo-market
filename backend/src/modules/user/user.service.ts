@@ -1,7 +1,7 @@
 import { Injectable, ConflictException } from '@nestjs/common';
+import { hashPassword } from '@common/utils/password.util';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
-import { hashPassword } from '../../common/utils/password.util';
 
 @Injectable()
 export class UserService {
@@ -28,5 +28,4 @@ export class UserService {
   async findById(id: number) {
     return this.userRepository.findById(id);
   }
-
 }

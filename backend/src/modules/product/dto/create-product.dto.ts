@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, IsArray, ValidateNested, IsNumber, IsEnum, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Currency, ProductStatus } from '@generated/prisma/enums';
 
 class CreateProductInfoDto {
   @ApiProperty({ example: '블랙 M', description: '옵션명' })
@@ -13,20 +14,20 @@ class CreateProductInfoDto {
   @Min(0)
   price: number;
 
-  @ApiProperty({ example: 'KRW', description: '통화' })
+  @ApiProperty({ example: 'KRW', enum: Currency, description: '통화' })
   @IsOptional()
-  @IsString()
-  currency?: string;
+  @IsEnum(Currency)
+  currency?: Currency;
 
   @ApiProperty({ example: 0, description: '할인율' })
   @IsOptional()
   @IsNumber()
   discountRate?: number;
 
-  @ApiProperty({ example: 'ACTIVE', description: '상태' })
+  @ApiProperty({ example: 'ACTIVE', enum: ProductStatus, description: '상태' })
   @IsOptional()
-  @IsString()
-  status?: string;
+  @IsEnum(ProductStatus)
+  status?: ProductStatus;
 
   @ApiProperty({ example: 100, description: '재고 수량' })
   @IsNumber()

@@ -20,10 +20,12 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "strictPropertyInitialization": false,
     "baseUrl": ".",
     "paths": {
       "@modules/*": ["src/modules/*"],
-      "@generated/*": ["generated/prisma/*"]
+      "@generated/*": ["generated/*"],
+      "@common/*": ["src/common/*"]
     }
   }
 }
