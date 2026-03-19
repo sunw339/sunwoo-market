@@ -14,7 +14,7 @@ import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@generated/prisma/enums';
 import { ProductService } from '../service/product.service';
-import { CreateProductDto } from '../dto/create-product.dto';
+import { CreateProductDto, CreateProductInfoDto } from '../dto/create-product.dto';
 import { UpdateProductDto, UpdateProductInfoDto } from '../dto/update-product.dto';
 
 @Controller('products')
@@ -62,8 +62,30 @@ export class ProductController {
   async updateOption(
     @Param('productId', ParseIntPipe) productId: number,
     @Param('id', ParseIntPipe) id: number,
-     @Body() dto: UpdateProductInfoDto,
+    @Body() dto: UpdateProductInfoDto,
   ){
     return this.productService.updateOption(productId, id, dto)
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Post(':productId/options')
+  async createOption(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Body() dto: CreateProductInfoDto,
+  ){
+    return this.productService.createOption(productId, dto)
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Delete(':productId/options/:id')
+  async deleteOption(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CreateProductInfoDto,
+  ){
+    return this.productService.deleteOption(productId, id)
+  }
+  
 }
