@@ -52,7 +52,6 @@ backend/
 │       ├── auth/        # JWT 인증
 │       ├── user/        # 유저 관리
 │       ├── product/     # 상품 관리
-│       ├── stock/       # 재고 관리
 │       ├── order/       # 주문 처리
 │       ├── payment/     # 결제 (Toss Payments)
 │       └── prisma/      # Prisma 모듈
