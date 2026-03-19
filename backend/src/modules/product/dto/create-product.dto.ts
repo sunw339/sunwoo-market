@@ -11,7 +11,7 @@ import {
 import { Type } from 'class-transformer';
 import { Currency, ProductStatus } from '@generated/prisma/enums';
 
-class CreateProductInfoDto {
+export class CreateProductInfoDto {
   @ApiProperty({ example: '블랙 M', description: '옵션명' })
   @IsOptional()
   @IsString()
