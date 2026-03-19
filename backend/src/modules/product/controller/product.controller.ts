@@ -13,9 +13,9 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@common/guards/roles.guard';
 import { Roles } from '@common/decorators/roles.decorator';
 import { UserRole } from '@generated/prisma/enums';
-import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductService } from '../service/product.service';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { UpdateProductDto, UpdateProductInfoDto } from '../dto/update-product.dto';
 
 @Controller('products')
 export class ProductController {
@@ -53,5 +53,17 @@ export class ProductController {
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.productService.remove(id);
+  }
+
+  //상품 옵션
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Patch(':productId/options/:id')
+  async updateOption(
+    @Param('productId', ParseIntPipe) productId: number,
+    @Param('id', ParseIntPipe) id: number,
+     @Body() dto: UpdateProductInfoDto,
+  ){
+    return this.productService.updateOption(productId, id, dto)
   }
 }

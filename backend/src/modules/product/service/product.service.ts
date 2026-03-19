@@ -1,14 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ProductRepository } from './product.repository';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductRepository } from '../repository/product.repository';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { UpdateProductDto, UpdateProductInfoDto } from '../dto/update-product.dto';
+import { ProductInfoRepository } from '../repository/product-info.repository';
 
 @Injectable()
 export class ProductService {
-  constructor(private productRepository: ProductRepository) {}
+  constructor(
+    private productRepository: ProductRepository,
+    private productInfoRepository: ProductInfoRepository
+  ) {}
 
   async create(dto: CreateProductDto) {
-    return this.productRepository.create({
+    return await this.productRepository.create({
       name: dto.name,
       description: dto.description,
       image_url: dto.imageUrl,
@@ -43,11 +47,20 @@ export class ProductService {
 
   async update(id: number, dto: UpdateProductDto) {
     await this.findById(id);
-    return this.productRepository.update(id, dto);
+    return await this.productRepository.update(id, dto);
   }
 
   async remove(id: number) {
     await this.findById(id);
-    return this.productRepository.softDelete(id);
+    return await this.productRepository.softDelete(id);
+  }
+
+  async updateOption(productId:number, id:number, dto:UpdateProductInfoDto) {
+    await this.findById(productId)
+    const option = await this.productInfoRepository.findByIdAndProductId(id, productId)
+
+    if(!option) throw new NotFoundException('상품을 찾을 수 없습니다')
+
+    return await this.productInfoRepository.update(id, dto)
   }
 }
