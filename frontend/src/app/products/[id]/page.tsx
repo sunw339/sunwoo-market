@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { getProduct } from "@/lib/api";
-import { mockProducts } from "@/mocks/data";
 import { useCartStore } from "@/stores/useCartStore";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/format";
@@ -28,9 +27,7 @@ export default function ProductDetailPage() {
         const data = await getProduct(id);
         setProduct(data);
       } catch {
-        // todo0050 - 백엔드 연결 후 mock fallback 제거
-        const mock = mockProducts.find((p) => p.id === id);
-        setProduct(mock || null);
+        setProduct(null);
       } finally {
         setIsLoading(false);
       }

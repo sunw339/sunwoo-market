@@ -1,4 +1,7 @@
-// ---- User ----
+// ============================================================
+// Frontend Types (컴포넌트에서 사용하는 정규화된 타입)
+// ============================================================
+
 export interface User {
   id: string;
   email: string;
@@ -15,14 +18,9 @@ export interface SignupRequest {
   email: string;
   password: string;
   name: string;
+  phone: string;
 }
 
-export interface AuthResponse {
-  user: User;
-  token: string;
-}
-
-// ---- Product ----
 export interface Product {
   id: string;
   name: string;
@@ -34,13 +32,11 @@ export interface Product {
   category: string;
 }
 
-// ---- Cart ----
 export interface CartItem {
   product: Product;
   quantity: number;
 }
 
-// ---- Order ----
 export interface ShippingAddress {
   recipientName: string;
   addressLine1: string;
@@ -77,4 +73,77 @@ export interface CheckoutRequest {
 export interface ApiError {
   message: string;
   status: number;
+}
+
+// ============================================================
+// Backend Response Types (API 응답 원본 타입)
+// ============================================================
+
+export interface BackendAuthResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface BackendUser {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  address?: string | null;
+  address_detail?: string | null;
+  role: "USER" | "ADMIN";
+  created_at?: string | null;
+  updated_at?: string | null;
+  deleted_at?: string | null;
+}
+
+export interface BackendStock {
+  id: number;
+  qty: number;
+}
+
+export interface BackendProductInfo {
+  id: number;
+  product_id: number;
+  name?: string | null;
+  price: number;
+  currency: "KRW" | "USD";
+  discount_rate: number;
+  status: "ACTIVE" | "INACTIVE" | "SOLD_OUT";
+  stock?: BackendStock | null;
+}
+
+export interface BackendProduct {
+  id: number;
+  name: string;
+  description?: string | null;
+  image_url?: string | null;
+  thumb_url?: string | null;
+  code?: string | null;
+  product_infos: BackendProductInfo[];
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
+
+// ============================================================
+// Admin / Create Types
+// ============================================================
+
+export interface CreateProductInfoInput {
+  name?: string;
+  price: number;
+  currency?: "KRW" | "USD";
+  discountRate?: number;
+  status?: "ACTIVE" | "INACTIVE" | "SOLD_OUT";
+  stockQty: number;
+}
+
+export interface CreateProductInput {
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  thumbUrl?: string;
+  code?: string;
+  productInfos: CreateProductInfoInput[];
 }

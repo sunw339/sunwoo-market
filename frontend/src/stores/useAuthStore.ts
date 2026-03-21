@@ -1,41 +1,70 @@
 import { create } from "zustand";
 import type { User } from "@/types";
+import { getMe, refreshToken } from "@/lib/api";
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
   isAdmin: () => boolean;
-  setAuth: (user: User, token: string) => void;
+  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   logout: () => void;
-  hydrate: () => void;
+  hydrate: () => Promise<void>;
+  refreshAccessToken: () => Promise<boolean>;
 }
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
   user: null,
-  token: null,
+  accessToken: null,
   isAuthenticated: false,
 
   isAdmin: () => {
     return get().user?.role === "admin";
   },
 
-  setAuth: (user, token) => {
-    localStorage.setItem("token", token);
-    // todo0040 - refresh token 등 추가 토큰 저장 로직 필요 시 수정
-    set({ user, token, isAuthenticated: true });
+  setAuth: (user, accessToken, rt) => {
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", rt);
+    set({ user, accessToken, isAuthenticated: true });
   },
 
   logout: () => {
-    localStorage.removeItem("token");
-    set({ user: null, token: null, isAuthenticated: false });
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    set({ user: null, accessToken: null, isAuthenticated: false });
   },
 
-  hydrate: () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      // todo0041 - /auth/me 같은 엔드포인트를 호출해서 user 정보 가져오기
-      set({ token, isAuthenticated: true });
+  hydrate: async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) return;
+
+    try {
+      set({ accessToken: token, isAuthenticated: true });
+      const user = await getMe();
+      set({ user });
+    } catch {
+      // accessToken 만료 시 refresh 시도
+      const refreshed = await get().refreshAccessToken();
+      if (!refreshed) {
+        get().logout();
+      }
+    }
+  },
+
+  refreshAccessToken: async () => {
+    const rt = localStorage.getItem("refreshToken");
+    if (!rt) return false;
+
+    try {
+      const { accessToken, refreshToken: newRt } = await refreshToken(rt);
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", newRt);
+      set({ accessToken, isAuthenticated: true });
+      const user = await getMe();
+      set({ user });
+      return true;
+    } catch {
+      return false;
     }
   },
 }));

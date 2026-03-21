@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { login } from "@/lib/api";
+import { login, getMe } from "@/lib/api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -22,8 +22,9 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await login({ email, password });
-      setAuth(res.user, res.token);
+      const { accessToken, refreshToken } = await login({ email, password });
+      const user = await getMe();
+      setAuth(user, accessToken, refreshToken);
       router.push("/products");
     } catch (err: unknown) {
       const apiErr = err as { message?: string };
