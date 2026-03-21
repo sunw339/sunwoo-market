@@ -1,136 +1,101 @@
 import 'dotenv/config';
-import { PrismaClient } from '../generated/prisma/client';
+import mysql from 'mysql2/promise';
 import * as bcrypt from 'bcrypt';
 
-// @ts-expect-error prisma v7 타입은 adapter를 요구하지만 prisma.config.ts에서 datasource URL을 제공
-const prisma = new PrismaClient();
-
 async function main() {
-  // 1. Admin 유저
-  const adminPassword = await bcrypt.hash('admin1234', 10);
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@sunwoo.com' },
-    update: {},
-    create: {
-      name: '관리자',
-      phone: '010-0000-0000',
-      email: 'admin@sunwoo.com',
-      password: adminPassword,
-      role: 'ADMIN',
-    },
-  });
+  const connection = await mysql.createConnection(process.env.DATABASE_URL!);
 
-  // 2. 일반 유저
-  const userPassword = await bcrypt.hash('user1234', 10);
-  const user = await prisma.user.upsert({
-    where: { email: 'user@sunwoo.com' },
-    update: {},
-    create: {
-      name: '홍길동',
-      phone: '010-1234-5678',
-      email: 'user@sunwoo.com',
-      password: userPassword,
-      address: '서울시 강남구',
-      address_detail: '101동 202호',
-      role: 'USER',
-    },
-  });
+  try {
+    // 1. Admin 유저
+    const adminPassword = await bcrypt.hash('admin1234', 10);
+    await connection.execute(
+      `INSERT INTO user (name, phone, email, password, role)
+       VALUES (?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE id=id`,
+      ['관리자', '010-0000-0000', 'admin@sunwoo.com', adminPassword, 'ADMIN'],
+    );
 
-  // 3. 상품 + 옵션 + 재고
-  const product1 = await prisma.product.create({
-    data: {
-      name: '베이직 반팔 티셔츠',
-      description: '편안한 착용감의 데일리 반팔 티셔츠',
-      code: 'TSH-001',
-      product_infos: {
-        create: [
-          {
-            name: '블랙 M',
-            price: 29000,
-            status: 'ACTIVE',
-            stock: { create: { qty: 100 } },
-          },
-          {
-            name: '블랙 L',
-            price: 29000,
-            status: 'ACTIVE',
-            stock: { create: { qty: 50 } },
-          },
-          {
-            name: '화이트 M',
-            price: 29000,
-            status: 'ACTIVE',
-            stock: { create: { qty: 80 } },
-          },
-        ],
-      },
-    },
-  });
+    // 2. 일반 유저
+    const userPassword = await bcrypt.hash('user1234', 10);
+    await connection.execute(
+      `INSERT INTO user (name, phone, email, password, address, address_detail, role)
+       VALUES (?, ?, ?, ?, ?, ?, ?)
+       ON DUPLICATE KEY UPDATE id=id`,
+      ['홍길동', '010-1234-5678', 'user@sunwoo.com', userPassword, '서울시 강남구', '101동 202호', 'USER'],
+    );
 
-  const product2 = await prisma.product.create({
-    data: {
-      name: '슬림핏 청바지',
-      description: '클래식한 슬림핏 데님 팬츠',
-      code: 'JNS-001',
-      product_infos: {
-        create: [
-          {
-            name: '인디고 30',
-            price: 49000,
-            status: 'ACTIVE',
-            stock: { create: { qty: 60 } },
-          },
-          {
-            name: '인디고 32',
-            price: 49000,
-            status: 'ACTIVE',
-            stock: { create: { qty: 40 } },
-          },
-          {
-            name: '블랙 30',
-            price: 52000,
-            discount_rate: 10,
-            status: 'ACTIVE',
-            stock: { create: { qty: 30 } },
-          },
-        ],
-      },
-    },
-  });
+    // 3. 상품 1: 반팔 티셔츠
+    const [p1] = await connection.execute<mysql.ResultSetHeader>(
+      `INSERT INTO product (name, description, code, updated_at) VALUES (?, ?, ?, NOW())`,
+      ['베이직 반팔 티셔츠', '편안한 착용감의 데일리 반팔 티셔츠', 'TSH-001'],
+    );
+    const p1Id = p1.insertId;
 
-  const product3 = await prisma.product.create({
-    data: {
-      name: '캔버스 스니커즈',
-      description: '가볍고 편한 캔버스 스니커즈',
-      code: 'SHO-001',
-      product_infos: {
-        create: [
-          {
-            name: '화이트 260',
-            price: 39000,
-            status: 'ACTIVE',
-            stock: { create: { qty: 25 } },
-          },
-          {
-            name: '블랙 270',
-            price: 39000,
-            status: 'SOLD_OUT',
-            stock: { create: { qty: 0 } },
-          },
-        ],
-      },
-    },
-  });
+    for (const [name, price, qty] of [
+      ['블랙 M', 29000, 100],
+      ['블랙 L', 29000, 50],
+      ['화이트 M', 29000, 80],
+    ]) {
+      const [info] = await connection.execute<mysql.ResultSetHeader>(
+        `INSERT INTO product_info (product_id, name, price, status, updated_at) VALUES (?, ?, ?, 'ACTIVE', NOW())`,
+        [p1Id, name, price],
+      );
+      await connection.execute(
+        `INSERT INTO stock (product_info_id, qty, updated_at) VALUES (?, ?, NOW())`,
+        [info.insertId, qty],
+      );
+    }
 
-  console.log('Seed 완료:', {
-    users: [admin.email, user.email],
-    products: [product1.name, product2.name, product3.name],
-  });
+    // 4. 상품 2: 청바지
+    const [p2] = await connection.execute<mysql.ResultSetHeader>(
+      `INSERT INTO product (name, description, code, updated_at) VALUES (?, ?, ?, NOW())`,
+      ['슬림핏 청바지', '클래식한 슬림핏 데님 팬츠', 'JNS-001'],
+    );
+    const p2Id = p2.insertId;
+
+    for (const [name, price, discountRate, qty] of [
+      ['인디고 30', 49000, 0, 60],
+      ['인디고 32', 49000, 0, 40],
+      ['블랙 30', 52000, 10, 30],
+    ]) {
+      const [info] = await connection.execute<mysql.ResultSetHeader>(
+        `INSERT INTO product_info (product_id, name, price, discount_rate, status, updated_at) VALUES (?, ?, ?, ?, 'ACTIVE', NOW())`,
+        [p2Id, name, price, discountRate],
+      );
+      await connection.execute(
+        `INSERT INTO stock (product_info_id, qty, updated_at) VALUES (?, ?, NOW())`,
+        [info.insertId, qty],
+      );
+    }
+
+    // 5. 상품 3: 스니커즈
+    const [p3] = await connection.execute<mysql.ResultSetHeader>(
+      `INSERT INTO product (name, description, code, updated_at) VALUES (?, ?, ?, NOW())`,
+      ['캔버스 스니커즈', '가볍고 편한 캔버스 스니커즈', 'SHO-001'],
+    );
+    const p3Id = p3.insertId;
+
+    for (const [name, price, status, qty] of [
+      ['화이트 260', 39000, 'ACTIVE', 25],
+      ['블랙 270', 39000, 'SOLD_OUT', 0],
+    ]) {
+      const [info] = await connection.execute<mysql.ResultSetHeader>(
+        `INSERT INTO product_info (product_id, name, price, status, updated_at) VALUES (?, ?, ?, ?, NOW())`,
+        [p3Id, name, price, status],
+      );
+      await connection.execute(
+        `INSERT INTO stock (product_info_id, qty, updated_at) VALUES (?, ?, NOW())`,
+        [info.insertId, qty],
+      );
+    }
+
+    console.log('Seed 완료: 유저 2명, 상품 3개 생성');
+  } finally {
+    await connection.end();
+  }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(() => prisma.$disconnect());
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

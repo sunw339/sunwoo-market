@@ -1,14 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProductRepository } from '../repository/product.repository';
-import { CreateProductDto, CreateProductInfoDto } from '../dto/create-product.dto';
-import { UpdateProductDto, UpdateProductInfoDto } from '../dto/update-product.dto';
+import {
+  CreateProductDto,
+  CreateProductInfoDto,
+} from '../dto/create-product.dto';
+import {
+  UpdateProductDto,
+  UpdateProductInfoDto,
+} from '../dto/update-product.dto';
 import { ProductInfoRepository } from '../repository/product-info.repository';
 
 @Injectable()
 export class ProductService {
   constructor(
     private productRepository: ProductRepository,
-    private productInfoRepository: ProductInfoRepository
+    private productInfoRepository: ProductInfoRepository,
   ) {}
 
   async create(dto: CreateProductDto) {
@@ -55,27 +61,33 @@ export class ProductService {
     return await this.productRepository.softDelete(id);
   }
 
-  async createOption(product_id:number,dto: CreateProductInfoDto) {
-    await this.findById(product_id)
+  async createOption(product_id: number, dto: CreateProductInfoDto) {
+    await this.findById(product_id);
 
-    return await this.productInfoRepository.create({  product: { connect: { id: product_id } }, ...dto});
+    return await this.productInfoRepository.create({
+      product: { connect: { id: product_id } },
+      ...dto,
+    });
   }
 
-  async updateOption(productId:number, id:number, dto:UpdateProductInfoDto) {
-    await this.findById(productId)
+  async updateOption(productId: number, id: number, dto: UpdateProductInfoDto) {
+    await this.findById(productId);
 
-    const option = await this.productInfoRepository.findByIdAndProductId(id, productId)
+    const option = await this.productInfoRepository.findByIdAndProductId(
+      id,
+      productId,
+    );
 
-    if(!option) throw new NotFoundException('상품을 찾을 수 없습니다')
+    if (!option) throw new NotFoundException('상품을 찾을 수 없습니다');
 
-    return await this.productInfoRepository.update(id, dto)
+    return await this.productInfoRepository.update(id, dto);
   }
 
-  async deleteOption(product_id:number, id:number) {
-    await this.findById(product_id)
+  async deleteOption(product_id: number, id: number) {
+    await this.findById(product_id);
 
-    await this.productInfoRepository.findByIdAndProductId(id, product_id)
+    await this.productInfoRepository.findByIdAndProductId(id, product_id);
 
-    return this.productInfoRepository.softDelete(id)
+    return this.productInfoRepository.softDelete(id);
   }
 }
