@@ -1,13 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProductRepository } from '../repository/product.repository';
-import {
-  CreateProductDto,
-  CreateProductInfoDto,
-} from '../dto/create-product.dto';
-import {
-  UpdateProductDto,
-  UpdateProductInfoDto,
-} from '../dto/update-product.dto';
+import { CreateProductDto, CreateProductInfoDto } from '../dto/create-product.dto';
+import { UpdateProductDto, UpdateProductInfoDto } from '../dto/update-product.dto';
 import { ProductInfoRepository } from '../repository/product-info.repository';
 
 @Injectable()
@@ -58,7 +52,7 @@ export class ProductService {
 
   async remove(id: number) {
     await this.findById(id);
-    return await this.productRepository.softDelete(id);
+    return await this.productRepository.delete(id);
   }
 
   async createOption(product_id: number, dto: CreateProductInfoDto) {
@@ -73,10 +67,7 @@ export class ProductService {
   async updateOption(productId: number, id: number, dto: UpdateProductInfoDto) {
     await this.findById(productId);
 
-    const option = await this.productInfoRepository.findByIdAndProductId(
-      id,
-      productId,
-    );
+    const option = await this.productInfoRepository.findByIdAndProductId(id, productId);
 
     if (!option) throw new NotFoundException('상품을 찾을 수 없습니다');
 
@@ -88,6 +79,6 @@ export class ProductService {
 
     await this.productInfoRepository.findByIdAndProductId(id, product_id);
 
-    return this.productInfoRepository.softDelete(id);
+    return this.productInfoRepository.delete(id);
   }
 }

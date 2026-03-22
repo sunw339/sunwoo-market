@@ -3,10 +3,16 @@ import { ProductService } from './service/product.service';
 import { ProductController } from './controller/product.controller';
 import { ProductRepository } from './repository/product.repository';
 import { ProductInfoRepository } from './repository/product-info.repository';
+import { StockRepository } from './repository/stock.repository';
 
 @Module({
   controllers: [ProductController],
-  providers: [ProductService, ProductRepository, ProductInfoRepository],
-  exports: [ProductService],
+  providers: [
+    ProductService,
+    ProductRepository,
+    ProductInfoRepository,
+    StockRepository,
+  ],
+  exports: [ProductService, StockRepository],
 })
 export class ProductModule {}

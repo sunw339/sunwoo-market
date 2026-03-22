@@ -4,12 +4,22 @@ import { Prisma } from '@generated/prisma/client';
 
 @Injectable()
 export class StockRepository {
-  constructor(private prisma: PrismaService){}
+  constructor(private prisma: PrismaService) {}
 
-  async update(product_info_id: number,data: Prisma.StockUpdateInput){
-    return this.prisma.stock.update({where: {product_info_id: product_info_id}, data : {
-      qty: data.qty,
-      version: { increment: 1 },
-    }})
+  async count(product_info_id: number) {
+    return this.prisma.stock.findUnique({
+      where: { product_info_id },
+      select: { qty: true, version: true },
+    });
+  }
+
+  async update(product_info_id: number, data: Prisma.StockUpdateInput) {
+    return this.prisma.stock.update({
+      where: { product_info_id: product_info_id },
+      data: {
+        qty: data.qty,
+        version: { increment: 1 },
+      },
+    });
   }
 }

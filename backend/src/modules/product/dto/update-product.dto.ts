@@ -6,5 +6,5 @@ export class UpdateProductDto extends PartialType(
 ) {}
 
 export class UpdateProductInfoDto extends PartialType(
-   OmitType(CreateProductInfoDto, [] as const),
-){}
+  OmitType(CreateProductInfoDto, [] as const),
+) {}
