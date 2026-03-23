@@ -10,7 +10,8 @@ function createAdapter() {
     user: decodeURIComponent(url.username),
     password: decodeURIComponent(url.password),
     database: url.pathname.slice(1),
-    ssl: true,
+    ssl: { rejectUnauthorized: false },
+    connectTimeout: 10000,
   });
 }
 
