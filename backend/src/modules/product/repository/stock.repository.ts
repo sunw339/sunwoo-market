@@ -13,11 +13,11 @@ export class StockRepository {
     });
   }
 
-  async update(product_info_id: number, data: Prisma.StockUpdateInput) {
-    return await this.prisma.stock.update({
-      where: { product_info_id: product_info_id },
+  async update(product_info_id: number,version: number, qty: number, tx: Prisma.TransactionClient,) {
+    return await tx.stock.updateMany({
+      where: { product_info_id: product_info_id, version: version },
       data: {
-        qty: data.qty,
+        qty: qty,
         version: { increment: 1 },
       },
     });

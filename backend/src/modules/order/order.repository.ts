@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@generated/prisma/client';
-import { OrderStatus } from '@generated/prisma/enums';
 import { PrismaService } from '@modules/prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 
@@ -9,14 +8,16 @@ export class OrderRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(
-    tx: Prisma.TransactionClient,
     user_id: number,
+    total_price: number,
     dto: CreateOrderDto,
+    tx: Prisma.TransactionClient,
   ) {
+
     return tx.order.create({
       data: {
         idempotency_key: dto.idempotency_key,
-        total_price: dto.total_price,
+        total_price: total_price,
         user: { connect: { id: user_id } },
         order_infos: {
           create: dto.items.map((item) => ({
@@ -36,7 +37,7 @@ export class OrderRepository {
     orderBy: Prisma.OrderOrderByWithRelationInput,
   ) {
     return this.prisma.order.findMany({
-      where: { deleted_at: null, status: { not: OrderStatus.PENDING } },
+      where: { deleted_at: null },
       skip: limit * page,
       take: limit,
       orderBy,
@@ -45,7 +46,7 @@ export class OrderRepository {
 
   async findAllByUserId(user_id: number) {
     return this.prisma.order.findMany({
-      where: { user_id },
+      where: { user_id , deleted_at: null },
       include: { order_infos: true },
     });
   }

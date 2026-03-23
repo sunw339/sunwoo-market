@@ -10,9 +10,9 @@ export class ProductInfoRepository {
     return await this.prisma.productInfo.create({ data });
   }
 
-  async findByIdAndProductId(id: number, productId: number) {
+  async findById(id: number) {
     return await this.prisma.productInfo.findFirst({
-      where: { id, product_id: productId },
+      where: { id, product: { deleted_at: null } },
     });
   }
 

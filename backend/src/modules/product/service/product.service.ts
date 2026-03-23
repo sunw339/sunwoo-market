@@ -67,7 +67,7 @@ export class ProductService {
   async updateOption(productId: number, id: number, dto: UpdateProductInfoDto) {
     await this.findById(productId);
 
-    const option = await this.productInfoRepository.findByIdAndProductId(id, productId);
+    const option = await this.productInfoRepository.findById(id);
 
     if (!option) throw new NotFoundException('상품을 찾을 수 없습니다');
 
@@ -77,7 +77,7 @@ export class ProductService {
   async deleteOption(product_id: number, id: number) {
     await this.findById(product_id);
 
-    await this.productInfoRepository.findByIdAndProductId(id, product_id);
+    await this.productInfoRepository.findById(id);
 
     return this.productInfoRepository.delete(id);
   }
