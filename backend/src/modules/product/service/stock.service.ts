@@ -6,8 +6,8 @@ import { StockRepository } from '../repository/stock.repository';
 export class StockService {
   constructor(private stockRepository: StockRepository){}
 
-  async update(product_info_id: number, updateStockDto: UpdateStockDto) {
+  async update(dto: UpdateStockDto) {
     // product info validation 추가하기
-    return await this.stockRepository.update(product_info_id, updateStockDto);
+    return await this.stockRepository.update(dto.product_info_id, dto.version, dto.qty);
   }
 }
