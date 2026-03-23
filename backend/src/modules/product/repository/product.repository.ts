@@ -7,11 +7,11 @@ export class ProductRepository {
   constructor(private prisma: PrismaService) {}
 
   async create(data: Prisma.ProductCreateInput) {
-    return this.prisma.product.create({ data });
+    return await this.prisma.product.create({ data });
   }
 
   async findAll() {
-    return this.prisma.product.findMany({
+    return await this.prisma.product.findMany({
       where: { deleted_at: null },
       include: {
         product_infos: {
@@ -23,7 +23,7 @@ export class ProductRepository {
   }
 
   async findById(id: number) {
-    return this.prisma.product.findUnique({
+    return await this.prisma.product.findUnique({
       where: { id },
       include: {
         product_infos: {
@@ -35,11 +35,11 @@ export class ProductRepository {
   }
 
   async update(id: number, data: Prisma.ProductUpdateInput) {
-    return this.prisma.product.update({ where: { id }, data });
+    return await this.prisma.product.update({ where: { id }, data });
   }
 
   async delete(id: number) {
-    return this.prisma.product.update({
+    return await this.prisma.product.update({
       where: { id },
       data: { deleted_at: new Date() },
     });

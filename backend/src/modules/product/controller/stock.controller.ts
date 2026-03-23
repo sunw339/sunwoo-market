@@ -13,10 +13,10 @@ export class StockController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Patch(':product_info_id')
-  update(
+  async update(
     @Param('product_info_id') product_info_id: number,
     @Body() updateStockDto: UpdateStockDto,
   ) {
-    return this.stockService.update(product_info_id, updateStockDto);
+    return await this.stockService.update(product_info_id, updateStockDto);
   }
 }

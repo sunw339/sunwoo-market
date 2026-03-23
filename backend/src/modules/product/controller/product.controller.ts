@@ -33,17 +33,17 @@ export class ProductController {
   @Roles(UserRole.ADMIN)
   @Post()
   async create(@Body() dto: CreateProductDto) {
-    return this.productService.create(dto);
+    return await this.productService.create(dto);
   }
 
   @Get()
   async findAll() {
-    return this.productService.findAll();
+    return await this.productService.findAll();
   }
 
   @Get(':id')
   async findById(@Param('id', ParseIntPipe) id: number) {
-    return this.productService.findById(id);
+    return await this.productService.findById(id);
   }
 
   @ApiBearerAuth()
@@ -54,7 +54,7 @@ export class ProductController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDto,
   ) {
-    return this.productService.update(id, dto);
+    return await this.productService.update(id, dto);
   }
 
   @ApiBearerAuth()
@@ -62,7 +62,7 @@ export class ProductController {
   @Roles(UserRole.ADMIN)
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.productService.remove(id);
+    return await this.productService.remove(id);
   }
 
   //상품 옵션
@@ -74,7 +74,7 @@ export class ProductController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductInfoDto,
   ) {
-    return this.productService.updateOption(productId, id, dto);
+    return await this.productService.updateOption(productId, id, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -84,7 +84,7 @@ export class ProductController {
     @Param('productId', ParseIntPipe) productId: number,
     @Body() dto: CreateProductInfoDto,
   ) {
-    return this.productService.createOption(productId, dto);
+    return await this.productService.createOption(productId, dto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -94,6 +94,6 @@ export class ProductController {
     @Param('productId', ParseIntPipe) productId: number,
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.productService.deleteOption(productId, id);
+    return await this.productService.deleteOption(productId, id);
   }
 }

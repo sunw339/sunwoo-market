@@ -34,7 +34,7 @@ export class ProductService {
   }
 
   async findAll() {
-    return this.productRepository.findAll();
+    return await this.productRepository.findAll();
   }
 
   async findById(id: number) {

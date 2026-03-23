@@ -19,6 +19,7 @@ export class OrderService {
   async create(user_id: number, dto: CreateOrderDto) {
     if (!user_id) throw new UnauthorizedException('유효하지 않은 주문입니다');
 
+    //1.중복 주문 여부 확인
     const existing = await this.orderRepository.findOneByKey(
       dto.idempotency_key,
     );

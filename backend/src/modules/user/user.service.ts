@@ -15,17 +15,17 @@ export class UserService {
 
     const hashedPassword = await hashPassword(dto.password);
 
-    return this.userRepository.create({
+    return await this.userRepository.create({
       ...dto,
       password: hashedPassword,
     });
   }
 
   async findByEmail(email: string) {
-    return this.userRepository.findByEmail(email);
+    return await this.userRepository.findByEmail(email);
   }
 
   async findById(id: number) {
-    return this.userRepository.findById(id);
+    return await this.userRepository.findById(id);
   }
 }

@@ -12,13 +12,13 @@ export class UserController {
 
   @Post()
   async create(@Body() dto: CreateUserDto) {
-    return this.userService.create(dto);
+    return await this.userService.create(dto);
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@CurrentUser() user: CurrentUserInfo) {
-    return this.userService.findById(user.userId);
+    return await this.userService.findById(user.userId);
   }
 }
