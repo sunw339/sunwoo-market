@@ -13,6 +13,6 @@ import { StockRepository } from './repository/stock.repository';
     ProductInfoRepository,
     StockRepository,
   ],
-  exports: [ProductService, StockRepository],
+  exports: [ProductService, StockRepository, ProductInfoRepository],
 })
 export class ProductModule {}
