@@ -7,11 +7,6 @@ export class UpdateStockDto {
     @Min(0)
     qty: number
 
-    @ApiProperty({ example: 1, description: 'product info id' })
-    @IsInt()
-    @IsPositive()
-    product_info_id: number
-
     @ApiProperty({ example: 1, description: 'version' })
     @IsInt()
     @IsPositive()

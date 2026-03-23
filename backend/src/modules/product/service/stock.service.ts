@@ -1,13 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { UpdateStockDto } from '../dto/update-stock.dto';
 import { StockRepository } from '../repository/stock.repository';
+import { ProductInfoRepository } from '../repository/product-info.repository';
 
 @Injectable()
 export class StockService {
-  constructor(private stockRepository: StockRepository){}
+  constructor(
+    private stockRepository: StockRepository,
+    private productInfoRepository: ProductInfoRepository
+  ){}
 
-  async update(dto: UpdateStockDto) {
-    // product info validation 추가하기
-    return await this.stockRepository.update(dto.product_info_id, dto.version, dto.qty);
+  async update(product_info_id: number, dto: UpdateStockDto) {
+    const product = await this.productInfoRepository.findById(product_info_id)
+    if(!product) throw new ForbiddenException('잘못된 접근입니다.')
+    return await this.stockRepository.update(product_info_id, dto.version, dto.qty);
   }
 }
