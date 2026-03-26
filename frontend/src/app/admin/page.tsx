@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { createProduct, getProducts } from "@/lib/api";
-import { mockProducts } from "@/mocks/data";
 import { formatPrice } from "@/lib/format";
 import AdminGuard from "@/components/layout/AdminGuard";
 import Input from "@/components/ui/Input";
@@ -93,7 +92,7 @@ function ProductListTab() {
         const data = await getProducts();
         setProducts(data);
       } catch {
-        setProducts(mockProducts);
+        setProducts([]);
       } finally {
         setIsLoading(false);
       }
@@ -187,13 +186,18 @@ function ProductRegisterTab() {
       await createProduct({
         name: form.name,
         description: form.description,
-        price: Number(form.price),
-        currency: "KRW",
-        category: form.category,
-        stock: Number(form.stock),
+        code: form.category,
         imageUrl:
           form.imageUrl ||
           `https://placehold.co/400x400/e2e8f0/475569?text=${encodeURIComponent(form.name)}`,
+        productInfos: [
+          {
+            price: Number(form.price),
+            currency: "KRW",
+            status: "ACTIVE",
+            stockQty: Number(form.stock),
+          },
+        ],
       });
       setSuccess("상품이 등록되었습니다.");
       setForm(initialForm);

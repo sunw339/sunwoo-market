@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { getProducts } from "@/lib/api";
-import { mockProducts } from "@/mocks/data";
 import type { Product } from "@/types";
 import ProductGrid from "@/components/product/ProductGrid";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -17,8 +16,7 @@ export default function ProductsPage() {
         const data = await getProducts();
         setProducts(data);
       } catch {
-        // todo0050 - 백엔드 연결 후 mock fallback 제거
-        setProducts(mockProducts);
+        setProducts([]);
       } finally {
         setIsLoading(false);
       }

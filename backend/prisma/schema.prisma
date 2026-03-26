@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -10,7 +11,10 @@ datasource db {
 enum OrderStatus {
   PENDING
   PAID
+  SHIPPED
+  DELIVERED
   CANCELLED
+  FAILED
   REFUNDED
 }
 
@@ -25,17 +29,24 @@ enum ProductStatus {
   SOLD_OUT
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id             Int       @id @default(autoincrement())
-  name           String?
-  phone          String?
-  email          String?
+  name           String
+  phone          String
+  email          String    @unique
+  password       String
   address        String?
   address_detail String?
-  role           String?
+  role           UserRole  @default(USER)
   created_at     DateTime? @default(now())
   updated_at     DateTime? @updatedAt
   deleted_at     DateTime?
+
   orders         Order[]
 
   @@map("user")
@@ -44,15 +55,15 @@ model User {
 model Order {
   id             Int          @id @default(autoincrement())
   user_id        Int
-  idempotency_id Int
+  idempotency_key String @unique
   paymentKey     String?
-  status         OrderStatus?
+  status          OrderStatus  @default(PENDING)
   total_price    Int
-  currency       Currency?
+  currency        Currency     @default(KRW)
   address        String?
   address_detail String?
-  created_at     DateTime?    @default(now())
-  updated_at     DateTime?    @updatedAt
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
   approved_at    DateTime?
   deleted_at     DateTime?
   user           User         @relation(fields: [user_id], references: [id])
@@ -64,30 +75,43 @@ model Order {
 model OrderInfo {
   id          Int       @id @default(autoincrement())
   order_id    Int
-  product_id  Int
-  total_price Int
-  amount      Int?
-  currency    Currency?
-  created_at  DateTime? @default(now())
-  updated_at  DateTime? @updatedAt
+  product_info_id Int       // ProductInfo 연결 (어떤 옵션인지 추적)
+  snapshot_price  Int       // 주문 시점 가격 스냅샷
+  amount          Int       @default(1)
+  currency    Currency @default(KRW)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
   deleted_at  DateTime?
-  order       Order     @relation(fields: [order_id], references: [id])
-  product     Product   @relation(fields: [product_id], references: [id])
+
+  order        Order       @relation(fields: [order_id], references: [id])
+  product_info ProductInfo @relation(fields: [product_info_id], references: [id])
 
   @@map("order_info")
 }
 
+model Stock {
+  id              Int      @id @default(autoincrement())
+  product_info_id Int      @unique
+  qty             Int      @default(0)
+  version         Int      @default(0) 
+  updated_at      DateTime @updatedAt
+
+  product_info ProductInfo @relation(fields: [product_info_id], references: [id])
+
+  @@map("stock")
+}
+
 model Product {
   id            Int           @id @default(autoincrement())
-  name          String?
+  name          String
   description   String?       @db.Text
   image_url     String?       @db.Text
   thumb_url     String?       @db.Text
   code          String?
-  created_at    DateTime?     @default(now())
-  updated_at    DateTime?     @updatedAt
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
   deleted_at    DateTime?
-  order_infos   OrderInfo[]
+
   product_infos ProductInfo[]
 
   @@map("product")
@@ -96,15 +120,18 @@ model Product {
 model ProductInfo {
   id            Int            @id @default(autoincrement())
   product_id    Int
-  stock_qty     Int?
-  price         Int?
-  currency      Currency?
-  discount_rate Int?
-  status        ProductStatus?
-  created_at    DateTime?      @default(now())
-  updated_at    DateTime?      @updatedAt
+  name          String?        // 옵션명 (예: "블랙 M", "화이트 L")
+  price         Int
+  currency      Currency       @default(KRW)
+  discount_rate Int            @default(0)
+  status        ProductStatus  @default(INACTIVE)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
   deleted_at    DateTime?
+
   product       Product        @relation(fields: [product_id], references: [id])
+  stock       Stock?
+  order_infos OrderInfo[]
 
   @@map("product_info")
 }

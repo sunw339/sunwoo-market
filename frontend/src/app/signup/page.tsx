@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signup } from "@/lib/api";
+import { signup, login, getMe } from "@/lib/api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -13,6 +13,7 @@ export default function SignupPage() {
   const setAuth = useAuthStore((s) => s.setAuth);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,8 +31,10 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      const res = await signup({ email, password, name });
-      setAuth(res.user, res.token);
+      await signup({ email, password, name, phone });
+      const { accessToken, refreshToken } = await login({ email, password });
+      const user = await getMe();
+      setAuth(user, accessToken, refreshToken);
       router.push("/products");
     } catch (err: unknown) {
       const apiErr = err as { message?: string };
@@ -62,6 +65,15 @@ export default function SignupPage() {
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <Input
+          id="phone"
+          label="Phone"
+          type="tel"
+          placeholder="010-0000-0000"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
           required
         />
         <Input
