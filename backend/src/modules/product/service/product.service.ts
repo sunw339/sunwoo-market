@@ -1,7 +1,17 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProductRepository } from '../repository/product.repository';
-import { CreateProductDto, CreateProductInfoDto } from '../dto/create-product.dto';
-import { UpdateProductDto, UpdateProductInfoDto } from '../dto/update-product.dto';
+import {
+  CreateProductDto,
+  CreateProductInfoDto,
+} from '../dto/create-product.dto';
+import {
+  UpdateProductDto,
+  UpdateProductInfoDto,
+} from '../dto/update-product.dto';
 import { ProductInfoRepository } from '../repository/product-info.repository';
 
 @Injectable()
@@ -80,5 +90,10 @@ export class ProductService {
     await this.productInfoRepository.findById(id);
 
     return this.productInfoRepository.delete(id);
+  }
+
+  async findProductInfoById(id: number) {
+    if (!id) throw new BadRequestException('잘못된 요청입니다.');
+    return await this.productInfoRepository.findById(id);
   }
 }

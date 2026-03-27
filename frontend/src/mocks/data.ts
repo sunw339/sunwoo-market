@@ -4,6 +4,7 @@ import type { Product, Order } from "@/types";
 export const mockProducts: Product[] = [
   {
     id: "prod-1",
+    productInfoId: "1",
     name: "Classic White T-Shirt",
     description:
       "A comfortable 100% cotton t-shirt perfect for everyday wear. Available in all sizes.",
@@ -15,6 +16,7 @@ export const mockProducts: Product[] = [
   },
   {
     id: "prod-2",
+    productInfoId: "2",
     name: "Wireless Bluetooth Earbuds",
     description:
       "High-quality sound with 24-hour battery life. Active noise cancellation included.",
@@ -26,6 +28,7 @@ export const mockProducts: Product[] = [
   },
   {
     id: "prod-3",
+    productInfoId: "3",
     name: "Stainless Steel Water Bottle",
     description:
       "Keeps drinks cold for 24h, hot for 12h. 750ml capacity. BPA free.",
@@ -37,6 +40,7 @@ export const mockProducts: Product[] = [
   },
   {
     id: "prod-4",
+    productInfoId: "4",
     name: "Leather Crossbody Bag",
     description:
       "Compact genuine leather bag with adjustable strap. Perfect for travel.",
@@ -48,6 +52,7 @@ export const mockProducts: Product[] = [
   },
   {
     id: "prod-5",
+    productInfoId: "5",
     name: "Running Shoes Pro",
     description:
       "Lightweight and breathable running shoes with superior cushioning.",
@@ -59,6 +64,7 @@ export const mockProducts: Product[] = [
   },
   {
     id: "prod-6",
+    productInfoId: "6",
     name: "Smart Watch Series X",
     description:
       "Track your fitness, receive notifications, and more with a stunning AMOLED display.",
@@ -73,6 +79,7 @@ export const mockProducts: Product[] = [
 export const mockOrders: Order[] = [
   {
     id: "order-1001",
+    idempotencyKey: "mock-key-1",
     items: [
       {
         productId: "prod-1",
@@ -91,19 +98,12 @@ export const mockOrders: Order[] = [
     ],
     totalAmount: 84700,
     currency: "KRW",
-    shippingAddress: {
-      recipientName: "John Doe",
-      addressLine1: "123 Main St",
-      city: "New York",
-      state: "NY",
-      postalCode: "10001",
-      country: "US",
-    },
-    status: "delivered",
+    status: "DELIVERED",
     createdAt: "2026-02-01T10:00:00Z",
   },
   {
     id: "order-1002",
+    idempotencyKey: "mock-key-2",
     items: [
       {
         productId: "prod-2",
@@ -115,15 +115,7 @@ export const mockOrders: Order[] = [
     ],
     totalAmount: 79900,
     currency: "KRW",
-    shippingAddress: {
-      recipientName: "John Doe",
-      addressLine1: "123 Main St",
-      city: "New York",
-      state: "NY",
-      postalCode: "10001",
-      country: "US",
-    },
-    status: "shipped",
+    status: "SHIPPED",
     createdAt: "2026-02-15T14:30:00Z",
   },
 ];

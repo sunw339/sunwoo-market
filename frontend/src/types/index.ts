@@ -23,6 +23,7 @@ export interface SignupRequest {
 
 export interface Product {
   id: string;
+  productInfoId: string;
   name: string;
   description: string;
   price: number;
@@ -37,16 +38,6 @@ export interface CartItem {
   quantity: number;
 }
 
-export interface ShippingAddress {
-  recipientName: string;
-  addressLine1: string;
-  addressLine2?: string;
-  city: string;
-  state?: string;
-  postalCode: string;
-  country: string;
-}
-
 export interface OrderItem {
   productId: string;
   productName: string;
@@ -57,17 +48,28 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  idempotencyKey: string;
   items: OrderItem[];
   totalAmount: number;
   currency: string;
-  shippingAddress: ShippingAddress;
-  status: "pending" | "paid" | "shipped" | "delivered" | "cancelled";
+  status: "PENDING" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED" | "REFUNDED";
   createdAt: string;
 }
 
-export interface CheckoutRequest {
-  items: { productId: string; quantity: number }[];
-  shippingAddress: ShippingAddress;
+export interface CreateOrderRequest {
+  idempotency_key: string;
+  total_price: number;
+  items: {
+    product_info_id: number;
+    snapshot_price: number;
+    amount: number;
+  }[];
+}
+
+export interface ConfirmPaymentRequest {
+  paymentKey: string;
+  orderId: string;
+  amount: number;
 }
 
 export interface ApiError {
@@ -124,6 +126,35 @@ export interface BackendProduct {
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
+}
+
+export interface BackendOrderInfo {
+  id: number;
+  order_id: number;
+  product_info_id: number;
+  snapshot_price: number;
+  amount: number;
+  currency: "KRW" | "USD";
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+}
+
+export interface BackendOrder {
+  id: number;
+  user_id: number;
+  idempotency_key: string;
+  paymentKey: string | null;
+  status: "PENDING" | "PAID" | "SHIPPED" | "DELIVERED" | "CANCELLED" | "FAILED" | "REFUNDED";
+  total_price: number;
+  currency: "KRW" | "USD";
+  address: string | null;
+  address_detail: string | null;
+  created_at: string;
+  updated_at: string;
+  approved_at: string | null;
+  deleted_at: string | null;
+  order_infos: BackendOrderInfo[];
 }
 
 // ============================================================

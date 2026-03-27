@@ -1,14 +1,16 @@
 import { API_BASE_URL } from "./constants";
-import { transformProduct, transformUser } from "./transform";
+import { transformProduct, transformOrder, transformUser } from "./transform";
 import type {
   LoginRequest,
   SignupRequest,
   Product,
   User,
   Order,
-  CheckoutRequest,
+  CreateOrderRequest,
+  ConfirmPaymentRequest,
   BackendAuthResponse,
   BackendProduct,
+  BackendOrder,
   BackendUser,
   CreateProductInput,
 } from "@/types";
@@ -127,20 +129,35 @@ export async function deleteProduct(id: string): Promise<void> {
 }
 
 // ============================================================
-// Order API (미구현 - 백엔드 Order 모듈 추가 시 연결)
+// Order API
 // ============================================================
 
-export async function createOrder(
-  _body: CheckoutRequest,
-  _idempotencyKey: string
-): Promise<Order> {
-  throw { message: "Order API not implemented", status: 501 };
+export async function createOrder(body: CreateOrderRequest): Promise<Order> {
+  const data = await fetchApi<BackendOrder>("/order", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return transformOrder(data);
 }
 
 export async function getOrders(): Promise<Order[]> {
-  throw { message: "Order API not implemented", status: 501 };
+  const data = await fetchApi<BackendOrder[]>("/order");
+  return data.map(transformOrder);
 }
 
-export async function getOrder(_id: string): Promise<Order> {
-  throw { message: "Order API not implemented", status: 501 };
+export async function getOrder(id: string): Promise<Order> {
+  const data = await fetchApi<BackendOrder>(`/order/${id}`);
+  return transformOrder(data);
+}
+
+// ============================================================
+// Payment API
+// ============================================================
+
+export async function confirmPayment(body: ConfirmPaymentRequest): Promise<Order> {
+  const data = await fetchApi<BackendOrder>("/payment/confirm", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return transformOrder(data);
 }
